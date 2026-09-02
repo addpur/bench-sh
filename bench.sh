@@ -36,7 +36,6 @@ speed_test() {
     local serverId="$1"
     local log_file="./speedtest-cli/speedtest.log"
 
-    # Jalankan speedtest ke file log
     if [ -z "$serverId" ]; then
         ./speedtest-cli/speedtest --progress=no --accept-license --accept-gdpr > "$log_file" 2>&1
     else
@@ -44,9 +43,9 @@ speed_test() {
     fi
 
     if [ $? -eq 0 ]; then
-        local dl=$(awk '/Download:/{print $2}' "$log_file")
-        local up=$(awk '/Upload:/{print $2}' "$log_file")
-        local lat=$(awk '/Latency:/{print $2}' "$log_file")
+        local dl=$(awk -F': ' '/Download/ {print $2}' "$log_file" | awk '{print $1}')
+        local up=$(awk -F': ' '/Upload/ {print $2}' "$log_file" | awk '{print $1}')
+        local lat=$(awk -F': ' '/Latency/ {print $2}' "$log_file" | awk '{print $1}')
         
         if [[ -n "$dl" && -n "$up" ]]; then
             local lat_str="${lat} ms"
@@ -62,7 +61,6 @@ speed_test() {
         printf " %-45s \033[0;31m%45s\033[0m\n" "${nodeName}" "[ ${err_msg} ]"
     fi
 }
-
 
 speed() {
     printf "\n"
