@@ -60,19 +60,18 @@ speed_test() {
 
 speed() {
     printf " %-19s %b\n" "Test internet with Speedtest"
-    printf " \033[1;34m%-45s %-18s %-18s %-12s\033[0m\n" "Node Name" "Upload Speed" "Download Speed" "Latency"
+    printf " \033[1;34m%-45s %-20s %-20s %-12s\033[0m\n" "Node Name" "Upload (Mbps)" "Download (Mbps)" "Latency"
     
     speed_test '' 'Default (Auto)'
-    speed_test '797' 'Jakarta, ID (Biznet)'
+    speed_test '67459' 'Jakarta, ID (PT XLSMART Telecom Sejahtera)'
     speed_test '7582' 'Jakarta, ID (Telkom)'
-    speed_test '42688' 'Singapore, SG (XLSMART Telecom)'
-    speed_test '13623' 'Singapore, SG (Singtel)'
-    speed_test '35180' 'Seattle, US (Ziply Fiber)'
+    speed_test '5935' 'Singapore, SG (MyRepublic Singapore)'
+    speed_test '43122' 'Seattle, US (Contabo)'
     speed_test '53393' 'Toronto, CN (Bell Canada)'
     speed_test '62473' 'Vilnius, LN (UAB DELSKA Lithuania)'
-    speed_test '36998' 'Amsterdam, NL (RETN)'
-    speed_test '43356' 'Hongkong, CN (1010)'
-    speed_test '50686' 'Tokyo, JP (GSL Networks)'
+    speed_test '65170' 'Amsterdam, NL (Atharva)'
+    speed_test '65463' 'Hongkong, CN (HKBN)'
+    speed_test '24333' 'Tokyo, JP (Rakuten Mobile, Inc)'
 }
 
 io_test() {
