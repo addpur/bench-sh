@@ -64,7 +64,7 @@ speed() {
     
     speed_test '' 'Default (Auto)'
     speed_test '67459' 'Jakarta, ID (PT XLSMART Telecom Sejahtera)'
-    speed_test '7582' 'Jakarta, ID (Telkom)'
+    speed_test '70730' 'Surabaya, ID (Telkomsel)'
     speed_test '5935' 'Singapore, SG (MyRepublic Singapore)'
     speed_test '43122' 'Seattle, US (Contabo)'
     speed_test '53393' 'Toronto, CN (Bell Canada)'
