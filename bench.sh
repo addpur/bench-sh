@@ -34,38 +34,34 @@ next() { printf "%-70s\n" "-" | sed 's/\s/-/g'; }
 speed_test() {
     local nodeName="$2"
     local serverId="$1"
-    local log_file="./speedtest-cli/speedtest.log"
+    printf " %-45s" "${nodeName}"
 
     if [ -z "$serverId" ]; then
-        ./speedtest-cli/speedtest --progress=no --accept-license --accept-gdpr > "$log_file" 2>&1
+        ./speedtest-cli/speedtest --progress=no --accept-license --accept-gdpr >./speedtest-cli/speedtest.log 2>&1
     else
-        ./speedtest-cli/speedtest --progress=no --server-id="$serverId" --accept-license --accept-gdpr > "$log_file" 2>&1
+        ./speedtest-cli/speedtest --progress=no --server-id="$serverId" --accept-license --accept-gdpr >./speedtest-cli/speedtest.log 2>&1
     fi
 
     if [ $? -eq 0 ]; then
-        local dl=$(awk -F': ' '/Download/ {print $2}' "$log_file" | awk '{print $1}')
-        local up=$(awk -F': ' '/Upload/ {print $2}' "$log_file" | awk '{print $1}')
-        local lat=$(awk -F': ' '/Latency/ {print $2}' "$log_file" | awk '{print $1}')
+        local dl=$(awk '/Download:/{print $2" "$3}' ./speedtest-cli/speedtest.log)
+        local up=$(awk '/Upload:/{print $2" "$3}' ./speedtest-cli/speedtest.log)
+        local lat=$(awk '/Latency:/{print $2" "$3}' ./speedtest-cli/speedtest.log)
         
         if [[ -n "$dl" && -n "$up" ]]; then
-            local lat_str="${lat} ms"
-            printf " %-45s \033[0;32m%15s\033[0m \033[0;31m%15s\033[0m \033[0;36m%12s\033[0m\n" \
-                "${nodeName}" "${up}" "${dl}" "${lat_str}"
+            printf "\033[0;32m%-18s\033[0;31m%-20s\033[0;36m%-12s\033[0m\n" "${up}" "${dl}" "${lat}"
         else
-            printf " %-45s \033[0;31m%45s\033[0m\n" "${nodeName}" "[ Error: Result Empty ]"
+            printf "\033[0;31m%-50s\033[0m\n" "Failed (Result Empty)"
         fi
     else
-        local err_msg=$(grep -iE "error|failed|timeout" "$log_file" | head -n 1 | cut -c 1-45)
+        local err_msg=$(grep -iE "error|failed|timeout" ./speedtest-cli/speedtest.log | head -n 1 | cut -c 1-45)
         if [ -z "$err_msg" ]; then err_msg="Failed / Timeout"; fi
-
-        printf " %-45s \033[0;31m%45s\033[0m\n" "${nodeName}" "[ ${err_msg} ]"
+        printf "\033[0;31m%-50s\033[0m\n" "$err_msg"
     fi
 }
 
 speed() {
-    printf "\n"
     printf " %-19s %b\n" "Test internet with Speedtest"
-    printf " \033[1;34m%-45s %15s %15s %12s\033[0m\n" "Node Name" "Upload (Mbps)" "Download (Mbps)" "Latency"
+    printf " \033[1;34m%-45s %-20s %-20s %-12s\033[0m\n" "Node Name" "Upload (Mbps)" "Download (Mbps)" "Latency"
     
     speed_test '' 'Default (Auto)'
     speed_test '67459' 'Jakarta, ID (PT XLSMART Telecom Sejahtera)'
