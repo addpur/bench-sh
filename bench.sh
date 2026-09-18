@@ -113,76 +113,67 @@ check_virt() {
 ip_info() {
     local ipv4 ipv6 info info6
     local isp city country tz
+    local isp6 city6 country6 tz6 loc loc6
 
-    # Get IPv4
-    ipv4=$(curl -fsS4 -m 5 https://icanhazip.com 2>/dev/null || true)
-    ipv4=$(echo "$ipv4" | tr -d '\r\n ')
-
-    # Get IPv6 using the specific IP from IPv4 response
-    if [ -n "$ipv4" ] && [ -n "$info" ]; then
-        ipv6=$(curl -sfS -m 5 "https://ipinfo.io/$ipv4/json" 2>/dev/null || true)
-        if [ -n "$info6" ]; then
-            info6=$(echo "$info6" | tr -d '\r\n ')
-        fi
+    # ---------- IPv4 ----------
+    ipv4=$(curl -fsS4 -m 5 https://icanhazip.com 2>/dev/null | tr -d '\r\n ')
+    if [ -n "$ipv4" ]; then
+        info=$(curl -sfS -m 5 "https://ipinfo.io/${ipv4}/json" 2>/dev/null)
+        info=$(echo "$info" | tr -d '\r\n')
     fi
 
-    # Extract fields from JSON using jq (saatnya lebih stabil)
+    printf " %-28s: %b\n" "IP Address IPv4" "$(_blue "${ipv4:-N/A}")"
+
     if [ -n "$info" ]; then
-        # City (e.g., "Takokak")
-        city=$(echo "$info" | jq -r '".city // "Unknown"' 2>/dev/null)
-        
-        # Country (e.g., "ID" - use ipinfo.io free data)
-        country=$(echo "$info" | jq -r '".country // "Unknown"' 2>/dev/null)
-        
-        # Timezone (e.g., "Asia/Jakarta")
-        tz=$(echo "$info" | jq -r '".tz // "Unknown"' 2>/dev/null)
-    fi
+        isp=$(echo "$info"     | jq -r '.org     // "Unknown"' 2>/dev/null)
+        city=$(echo "$info"    | jq -r '.city    // ""'        2>/dev/null)
+        country=$(echo "$info" | jq -r '.country // "Unknown"' 2>/dev/null)
+        tz=$(echo "$info"      | jq -r '.timezone // .tz // "Unknown"' 2>/dev/null)
 
-    # Build location string WITHOUT trailing comma
-    if [ -n "$city" ] && [ -n "$country" ]; then
-        loc="${city}, ${country}"
-    elif [ -n "$city" ]; then
-        loc="${city}"
-    else
-        loc="Unknown"
-    fi
-
-    # Print IP info
-    printf " %-19s: %b\n" "IP Address IPv4" "$(_blue "$ipv4")"
-    
-    if [ -n "$ipv4" ] && [ -n "$info" ]; then
-        # ISP/Organization (ASN usually in org field)
-        isp=$(echo "$info" | jq -r '".org // .asn // "Unknown"' 2>/dev/null)
-        
-        # Location
-        printf " %-19s: %b\n" "ISP/ASN" "$(_yellow "$isp")"
-        printf " %-19s: %b\n" "Location" "$(_blue "$loc")"
-        printf " %-19s: %b\n" "Country" "$(_blue "$country")"
-        printf " %-19s: %b\n" "Timezone" "$(_blue "$tz")"
-    fi
-
-    # IP Info IPv6
-    if [ -n "$ipv6" ] && [ -n "$info6" ]; then
-        # IPv6 ISP
-        isp6=$(echo "$info6" | jq -r '".org // "Unknown"' 2>/dev/null)
-        
-        # IPv6 Location
-        city6=$(echo "$info6" | jq -r '".city // "Unknown"' 2>/dev/null)
-        country6=$(echo "$info6" | jq -r '".country // "Unknown"' 2>/dev/null)
-        
-        if [ -n "$city6" ] && [ -n "$country6" ]; then
-            loc6="${city6}, ${country6}"
-        elif [ -n "$city6" ]; then
-            loc6="${city6}"
+        if [ -n "$city" ] && [ -n "$country" ]; then
+            loc="${city}, ${country}"
+        elif [ -n "$city" ]; then
+            loc="${city}"
         else
-            loc6="Unknown"
+            loc="Unknown"
         fi
-        
-        printf " %-19s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
-        printf " %-19s: %b\n" "ISP/ASN" "$(_yellow "$isp6")"
-        printf " %-19s: %b\n" "Location" "$(_blue "$loc6")"
-        printf " %-19s: %b\n" "Country" "$(_blue "$country6")"
-        printf " %-19s: %b\n" "Timezone" "$(_blue "$tz6")"
+
+        printf " %-28s: %b\n" "ISP/ASN"  "$(_yellow "$isp")"
+        printf " %-28s: %b\n" "Location" "$(_blue "$loc")"
+        printf " %-28s: %b\n" "Country"  "$(_blue "$country")"
+        printf " %-28s: %b\n" "Timezone" "$(_blue "$tz")"
+    fi
+
+    # ---------- IPv6 ----------
+    ipv6=$(curl -fsS6 -m 5 https://icanhazip.com 2>/dev/null | tr -d '\r\n ')
+    if [ -n "$ipv6" ]; then
+        info6=$(curl -sfS -m 5 "https://ipinfo.io/${ipv6}/json" 2>/dev/null)
+        info6=$(echo "$info6" | tr -d '\r\n')
+    fi
+
+    if [ -n "$ipv6" ]; then
+        printf "\n"
+        printf " %-28s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
+
+        if [ -n "$info6" ]; then
+            isp6=$(echo "$info6"     | jq -r '.org      // "Unknown"' 2>/dev/null)
+            city6=$(echo "$info6"    | jq -r '.city     // ""'        2>/dev/null)
+            country6=$(echo "$info6" | jq -r '.country  // "Unknown"' 2>/dev/null)
+            tz6=$(echo "$info6"      | jq -r '.timezone // .tz // "Unknown"' 2>/dev/null)
+
+            if [ -n "$city6" ] && [ -n "$country6" ]; then
+                loc6="${city6}, ${country6}"
+            elif [ -n "$city6" ]; then
+                loc6="${city6}"
+            else
+                loc6="Unknown"
+            fi
+
+            printf " %-28s: %b\n" "ISP/ASN"  "$(_yellow "$isp6")"
+            printf " %-28s: %b\n" "Location" "$(_blue "$loc6")"
+            printf " %-28s: %b\n" "Country"  "$(_blue "$country6")"
+            printf " %-28s: %b\n" "Timezone" "$(_blue "$tz6")"
+        fi
     fi
 }
 
