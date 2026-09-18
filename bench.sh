@@ -117,29 +117,69 @@ ip_info() {
     ipv4=$(echo "$ipv4" | tr -d '\r\n ')
     ipv6=$(echo "$ipv6" | tr -d '\r\n ')
 
+    # --- IPv4 ---
     printf " %-19s: %b\n" "IP Address IPv4" "$(_blue "$ipv4")"
+
     if [ "$ipv4" != "N/A" ] && [ -n "$ipv4" ]; then
         local info=$(curl -s -m 5 "https://ipinfo.io/$ipv4/json")
-        local isp=$(echo "$info" | grep -oP '(?<="org": ")[^"]*')
-        local loc=$(echo "$info" | grep -oP '(?<="city": ")[^"]*'), $(echo "$info" | grep -oP '(?<="country": ")[^"]*')
+
+        # ISP (ASN)
+        local isp=$(echo "$info" | grep -oP '(?<="org": ")[^"]*' | head -1)
+        if [ -z "$isp" ]; then
+            # Coba cari dari field asn
+            local asn=$(echo "$info" | grep -oP '(?<="asn": ")[^"]*' | head -1)
+            if [ -z "$asn" ]; then
+                isp="Unknown (no ASN found)"
+            else
+                isp="$asn"
+            fi
+        fi
+
+        # Location
+        local loc=$(echo "$info" | grep -oP '(?<="city": ")[^",\[\n]*' | head -1)
+        local country=$(echo "$info" | grep -oP '(?<="country": ")[^",\[\n]*' | head -1)
+        local tz=$(echo "$info" | grep -oP '(?<="tz": "[^"]*" )' | head -1)
 
         [ -z "$isp" ] && isp="Unknown"
-        [ "$loc" = ", " ] && loc="Unknown"
-        printf " %-19s: %b\n" "ISP IPv4" "$(_yellow "$isp")"
-        printf " %-19s: %b\n" "Location IPv4" "$(_blue "$loc")"
+        [ -z "$loc" ] && loc="Unknown"
+        [ -z "$country" ] && country="Unknown"
+        [ -z "$tz" ] && tz="Unknown"
+
+        printf " %-19s: %b\n" "ISP/ASN" "$(_yellow "$isp")"
+        printf " %-19s: %b\n" "Location" "$(_blue "$loc")"
+        printf " %-19s: %b\n" "Country" "$(_blue "$country")"
+        printf " %-19s: %b\n" "Timezone" "$(_blue "$tz")"
     fi
 
+    # --- IPv6 ---
     printf " %-19s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
+
     if [ "$ipv6" != "N/A" ] && [ -n "$ipv6" ]; then
-        # PERBAIKAN: tambahkan /$ipv6/json
         local info6=$(curl -s -m 5 "https://ipinfo.io/$ipv6/json")
-        local isp6=$(echo "$info6" | grep -oP '(?<="org": ")[^"]*')
-        local loc6=$(echo "$info6" | grep -oP '(?<="city": ")[^"]*'), $(echo "$info6" | grep -oP '(?<="country": ")[^"]*')
+
+        local isp6=$(echo "$info6" | grep -oP '(?<="org": ")[^"]*' | head -1)
+        if [ -z "$isp6" ]; then
+            local asn6=$(echo "$info6" | grep -oP '(?<="asn": ")[^"]*' | head -1)
+            if [ -z "$asn6" ]; then
+                isp6="Unknown (no ASN found)"
+            else
+                isp6="$asn6"
+            fi
+        fi
+
+        local loc6=$(echo "$info6" | grep -oP '(?<="city": ")[^",\[\n]*' | head -1)
+        local country6=$(echo "$info6" | grep -oP '(?<="country": ")[^",\[\n]*' | head -1)
+        local tz6=$(echo "$info6" | grep -oP '(?<="tz": "[^"]*" )' | head -1)
 
         [ -z "$isp6" ] && isp6="Unknown"
-        [ "$loc6" = ", " ] && loc6="Unknown"
-        printf " %-19s: %b\n" "ISP IPv6" "$(_yellow "$isp6")"
-        printf " %-19s: %b\n" "Location IPv6" "$(_blue "$loc6")"
+        [ -z "$loc6" ] && loc6="Unknown"
+        [ -z "$country6" ] && country6="Unknown"
+        [ -z "$tz6" ] && tz6="Unknown"
+
+        printf " %-19s: %b\n" "ISP/ASN" "$(_yellow "$isp6")"
+        printf " %-19s: %b\n" "Location" "$(_blue "$loc6")"
+        printf " %-19s: %b\n" "Country" "$(_blue "$country6")"
+        printf " %-19s: %b\n" "Timezone" "$(_blue "$tz6")"
     fi
 }
 
