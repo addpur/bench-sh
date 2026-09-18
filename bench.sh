@@ -96,9 +96,6 @@ calc_size() {
     echo "${total_size} ${unit}"
 }
 
-to_kibyte() { awk 'BEGIN{printf "%.0f", '"$1"' / 1024}'; }
-calc_sum()  { local s=0; for i in "$@"; do s=$((s + i)); done; echo ${s}; }
-
 check_virt() {
     virt="Dedicated"
     if [ -f /proc/user_beancounters ]; then virt="OpenVZ"
@@ -134,7 +131,6 @@ _json_val() {
 }
 
 # ---------- IP Info ----------
-# Format seragam: padding label 27 karakter supaya semua ":" sejajar
 ip_info() {
     local ipv4 ipv6 info info6
     local isp city country tz loc
@@ -258,27 +254,26 @@ get_system_info() {
     fi
 }
 
-# Format label: gunakan %-18s (tanpa trailing space) supaya konsisten
 print_system_info() {
-    printf " %-18s: %b\n" "System uptime" "$(_blue "$up")"
-    printf " %-18s: %b\n" "Load average"  "$(_blue "$load")"
-    printf " %-18s: %b\n" "CPU Model"     "$(_blue "$cname")"
-    printf " %-18s: %b\n" "CPU Cores"     "$(_blue "$cores")"
-    printf " %-18s: %b\n" "CPU Cache"     "$(_blue "$ccache")"
-    printf " %-18s: %b\n" "AES-NI"        "$(_green "\xe2\x9c\x93 Enabled")"
+    printf " %-27s: %b\n" "System uptime"  "$(_blue "$up")"
+    printf " %-27s: %b\n" "Load average"   "$(_blue "$load")"
+    printf " %-27s: %b\n" "CPU Model"      "$(_blue "$cname")"
+    printf " %-27s: %b\n" "CPU Cores"      "$(_blue "$cores")"
+    printf " %-27s: %b\n" "CPU Cache"      "$(_blue "$ccache")"
+    printf " %-27s: %b\n" "AES-NI"         "$(_green "\xe2\x9c\x93 Enabled")"
     if [ -n "$cpu_virt" ]; then
-        printf " %-18s: %b\n" "VM-x/AMD-V" "$(_green "\xe2\x9c\x93 Enabled")"
+        printf " %-27s: %b\n" "VM-x/AMD-V" "$(_green "\xe2\x9c\x93 Enabled")"
     else
-        printf " %-18s: %b\n" "VM-x/AMD-V" "$(_red   "\xe2\x9c\x97 Disabled")"
+        printf " %-27s: %b\n" "VM-x/AMD-V" "$(_red   "\xe2\x9c\x97 Disabled")"
     fi
-    printf " %-18s: %b\n" "OS"             "$(_blue   "$opsy")"
-    printf " %-18s: %b\n" "Arch"           "$(_blue   "$arch")"
-    printf " %-18s: %b\n" "Kernel"         "$(_blue   "$kern")"
-    printf " %-18s: %b\n" "Total RAM"      "$(_yellow "$tram") ($uram Used)"
-    printf " %-18s: %b\n" "Total Swap"     "$(_blue   "${uswap} Used")"
-    printf " %-18s: %b\n" "Total Disk"     "$(_yellow "$disk_total") ($disk_used Used)"
-    printf " %-18s: %b\n" "TCP CC"         "$(_yellow "$tcpctrl")"
-    printf " %-18s: %b\n" "Virtualization" "$(_blue   "$virt")"
+    printf " %-27s: %b\n" "OS"             "$(_blue   "$opsy")"
+    printf " %-27s: %b\n" "Arch"           "$(_blue   "$arch")"
+    printf " %-27s: %b\n" "Kernel"         "$(_blue   "$kern")"
+    printf " %-27s: %b\n" "Total RAM"      "$(_yellow "$tram") ($uram Used)"
+    printf " %-27s: %b\n" "Total Swap"     "$(_blue   "${uswap} Used")"
+    printf " %-27s: %b\n" "Total Disk"     "$(_yellow "$disk_total") ($disk_used Used)"
+    printf " %-27s: %b\n" "TCP CC"         "$(_yellow "$tcpctrl")"
+    printf " %-27s: %b\n" "Virtualization" "$(_blue   "$virt")"
 }
 
 print_end_time() {
@@ -287,12 +282,12 @@ print_end_time() {
     if [ ${time} -gt 60 ]; then
         min=$((time / 60))
         sec=$((time % 60))
-        printf " %-18s: %b\n" "Finished in" "${min} min ${sec} sec"
+        printf " %-27s: %b\n" "Finished in" "${min} min ${sec} sec"
     else
-        printf " %-18s: %b\n" "Finished in" "${time} sec"
+        printf " %-27s: %b\n" "Finished in" "${time} sec"
     fi
     date_time=$(date '+%Y-%m-%d %H:%M:%S %Z')
-    printf " %-18s: %b\n" "Timestamp" "$date_time"
+    printf " %-27s: %b\n" "Timestamp" "$date_time"
 }
 
 # ---------- Main Execution ----------
@@ -305,12 +300,12 @@ print_system_info
 next
 ip_info
 next
-printf " %-18s: %b\n" "Calculating Speed I/O" "..."
-io1=$(io_test 2048); printf " %-18s: %b\n" "I/O Speed (1st)" "$(_yellow "$io1")"
-io2=$(io_test 2048); printf " %-18s: %b\n" "I/O Speed (2nd)" "$(_yellow "$io2")"
-io3=$(io_test 2048); printf " %-18s: %b\n" "I/O Speed (3rd)" "$(_yellow "$io3")"
-io4=$(io_test 2048); printf " %-18s: %b\n" "I/O Speed (4th)" "$(_yellow "$io4")"
-io5=$(io_test 2048); printf " %-18s: %b\n" "I/O Speed (5th)" "$(_yellow "$io5")"
+printf " %-27s: %b\n" "Calculating Speed I/O" "..."
+io1=$(io_test 2048); printf " %-27s: %b\n" "I/O Speed (1st)" "$(_yellow "$io1")"
+io2=$(io_test 2048); printf " %-27s: %b\n" "I/O Speed (2nd)" "$(_yellow "$io2")"
+io3=$(io_test 2048); printf " %-27s: %b\n" "I/O Speed (3rd)" "$(_yellow "$io3")"
+io4=$(io_test 2048); printf " %-27s: %b\n" "I/O Speed (4th)" "$(_yellow "$io4")"
+io5=$(io_test 2048); printf " %-27s: %b\n" "I/O Speed (5th)" "$(_yellow "$io5")"
 next
 install_speedtest
 speed
