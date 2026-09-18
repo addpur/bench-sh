@@ -113,7 +113,7 @@ check_virt() {
 ip_info() {
     local ipv4=$(curl -s4 -m 5 https://icanhazip.com || echo "N/A")
     local ipv6=$(curl -s6 -m 5 https://icanhazip.com || echo "N/A")
-    
+
     ipv4=$(echo "$ipv4" | tr -d '\r\n ')
     ipv6=$(echo "$ipv6" | tr -d '\r\n ')
 
@@ -122,23 +122,22 @@ ip_info() {
         local info=$(curl -s -m 5 "https://ipinfo.io/$ipv4/json")
         local isp=$(echo "$info" | grep -oP '(?<="org": ")[^"]*')
         local loc=$(echo "$info" | grep -oP '(?<="city": ")[^"]*'), $(echo "$info" | grep -oP '(?<="country": ")[^"]*')
-    
+
         [ -z "$isp" ] && isp="Unknown"
         [ "$loc" = ", " ] && loc="Unknown"
-
         printf " %-19s: %b\n" "ISP IPv4" "$(_yellow "$isp")"
         printf " %-19s: %b\n" "Location IPv4" "$(_blue "$loc")"
     fi
 
     printf " %-19s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
     if [ "$ipv6" != "N/A" ] && [ -n "$ipv6" ]; then
-        local info6=$(curl -s -m 5 "https://ipinfo.io")
+        # PERBAIKAN: tambahkan /$ipv6/json
+        local info6=$(curl -s -m 5 "https://ipinfo.io/$ipv6/json")
         local isp6=$(echo "$info6" | grep -oP '(?<="org": ")[^"]*')
         local loc6=$(echo "$info6" | grep -oP '(?<="city": ")[^"]*'), $(echo "$info6" | grep -oP '(?<="country": ")[^"]*')
-        
+
         [ -z "$isp6" ] && isp6="Unknown"
         [ "$loc6" = ", " ] && loc6="Unknown"
-
         printf " %-19s: %b\n" "ISP IPv6" "$(_yellow "$isp6")"
         printf " %-19s: %b\n" "Location IPv6" "$(_blue "$loc6")"
     fi
