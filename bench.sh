@@ -114,13 +114,10 @@ _json_val() {
     local json="$1" key="$2"
     printf '%s' "$json" | awk -v k="$key" '
         {
-            # Cari key dengan format "key": "value"
             pos = index($0, "\"" k "\"")
             if (pos > 0) {
                 rest = substr($0, pos + length(k) + 2)
-                # skip : dan spasi
                 sub(/^[[:space:]]*:[[:space:]]*/, "", rest)
-                # ambil isi dalam tanda kutip pertama
                 if (match(rest, /"[^"]*"/)) {
                     print substr(rest, RSTART + 1, RLENGTH - 2)
                     exit
@@ -138,7 +135,7 @@ ip_info() {
     # ---------- IPv4 ----------
     ipv4=$(curl -fsS4 -m 5 https://icanhazip.com 2>/dev/null | tr -d '\r\n ')
 
-    printf " %-28s: %b\n" "IP Address IPv4" "$(_blue "${ipv4:-N/A}")"
+    printf " %-19s: %b\n" "IP Address IPv4" "$(_blue "${ipv4:-N/A}")"
 
     if [ -n "$ipv4" ]; then
         info=$(curl -sfS -m 5 "https://ipinfo.io/${ipv4}/json" 2>/dev/null | tr -d '\r\n')
@@ -161,12 +158,12 @@ ip_info() {
                 loc="Unknown"
             fi
 
-            printf " %-28s: %b\n" "ISP/ASN"  "$(_yellow "$isp")"
-            printf " %-28s: %b\n" "Location" "$(_blue "$loc")"
-            printf " %-28s: %b\n" "Country"  "$(_blue "$country")"
-            printf " %-28s: %b\n" "Timezone" "$(_blue "$tz")"
+            printf " %-19s: %b\n" "ISP/ASN"  "$(_yellow "$isp")"
+            printf " %-19s: %b\n" "Location" "$(_blue "$loc")"
+            printf " %-19s: %b\n" "Country"  "$(_blue "$country")"
+            printf " %-19s: %b\n" "Timezone" "$(_blue "$tz")"
         else
-            printf " %-28s: %b\n" "ISP/ASN"  "$(_red "Failed to fetch (ipinfo.io)")"
+            printf " %-19s: %b\n" "ISP/ASN"  "$(_red "Failed to fetch (ipinfo.io)")"
         fi
     fi
 
@@ -175,7 +172,7 @@ ip_info() {
 
     if [ -n "$ipv6" ]; then
         printf "\n"
-        printf " %-28s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
+        printf " %-19s: %b\n" "IP Address IPv6" "$(_blue "$ipv6")"
 
         info6=$(curl -sfS -m 5 "https://ipinfo.io/${ipv6}/json" 2>/dev/null | tr -d '\r\n')
 
@@ -197,12 +194,12 @@ ip_info() {
                 loc6="Unknown"
             fi
 
-            printf " %-28s: %b\n" "ISP/ASN"  "$(_yellow "$isp6")"
-            printf " %-28s: %b\n" "Location" "$(_blue "$loc6")"
-            printf " %-28s: %b\n" "Country"  "$(_blue "$country6")"
-            printf " %-28s: %b\n" "Timezone" "$(_blue "$tz6")"
+            printf " %-19s: %b\n" "ISP/ASN"  "$(_yellow "$isp6")"
+            printf " %-19s: %b\n" "Location" "$(_blue "$loc6")"
+            printf " %-19s: %b\n" "Country"  "$(_blue "$country6")"
+            printf " %-19s: %b\n" "Timezone" "$(_blue "$tz6")"
         else
-            printf " %-28s: %b\n" "ISP/ASN"  "$(_red "Failed to fetch (ipinfo.io)")"
+            printf " %-19s: %b\n" "ISP/ASN"  "$(_red "Failed to fetch (ipinfo.io)")"
         fi
     fi
 }
