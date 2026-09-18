@@ -112,9 +112,22 @@ check_virt() {
 
 _json_val() {
     local json="$1" key="$2"
-    echo "$json" | grep -o "\"${key}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
-        | head -n1 \
-        | sed 's/.*:[[:space:]]*"\([^"]*\)"/\1/'
+    printf '%s' "$json" | awk -v k="$key" '
+        {
+            # Cari key dengan format "key": "value"
+            pos = index($0, "\"" k "\"")
+            if (pos > 0) {
+                rest = substr($0, pos + length(k) + 2)
+                # skip : dan spasi
+                sub(/^[[:space:]]*:[[:space:]]*/, "", rest)
+                # ambil isi dalam tanda kutip pertama
+                if (match(rest, /"[^"]*"/)) {
+                    print substr(rest, RSTART + 1, RLENGTH - 2)
+                    exit
+                }
+            }
+        }
+    '
 }
 
 ip_info() {
